@@ -105,16 +105,26 @@ $(document).on('o:prepare-value', function(e, type, value) {
                 // Set value as URI type
                 suggestInput.val(suggestion.value)
                     .attr('placeholder', suggestion.value);
-                idInput.val(suggestion.data.uri);
-                labelInput.val(suggestion.value);
-                idInput.prop('disabled', false);
-                labelInput.prop('disabled', false);
-                valueInput.prop('disabled', true);
-                var link = $('<a>')
-                    .attr('href', suggestion.data.uri)
-                    .attr('target', '_blank')
-                    .text(suggestion.data.uri);
-                idContainer.show().find('.valuesuggest-id').html(link);
+                if (suggestion.data.uri) {
+                    idInput.val(suggestion.data.uri);
+                    labelInput.val(suggestion.value);
+                    idInput.prop('disabled', false);
+                    labelInput.prop('disabled', false);
+                    valueInput.prop('disabled', true);
+                    var link = $('<a>')
+                        .attr('href', suggestion.data.uri)
+                        .attr('target', '_blank')
+                        .text(suggestion.data.uri);
+                    idContainer.show().find('.valuesuggest-id').html(link);
+                } else {
+                    idInput.val('');
+                    labelInput.val('');
+                    valueInput.val(suggestion.value);
+                    idInput.prop('disabled', true);
+                    labelInput.prop('disabled', true);
+                    valueInput.prop('disabled', false);
+                    idContainer.hide();
+                }
             }
         };
 
@@ -125,9 +135,12 @@ $(document).on('o:prepare-value', function(e, type, value) {
             options.minChars = 0;
             // Prepare the suggestions prior to rendering them.
             options.beforeRender = function(container, suggestions) {
-                // Add title attribute to each suggestion for disambiguation.
+                // Add available info to each suggestion for disambiguation.
                 container.children().each(function(index) {
-                    $(this).attr('title', suggestions[index].data.info);
+                    if (suggestions[index].data.info) {
+                        $(this).append('<div class="suggest-info"></div>')
+                            .find('.suggest-info').append(suggestions[index].data.info);
+                    }
                 });
                 // Hide suggestions that contain no matches.
                 var hasSuggestions = container.children(':has(strong)');
@@ -158,9 +171,12 @@ $(document).on('o:prepare-value', function(e, type, value) {
             options.preventBadQueries = false;
             // Prepare the suggestions prior to rendering them.
             options.beforeRender = function(container, suggestions) {
-                // Add title attribute to each suggestion for disambiguation.
+                // Add available info to each suggestion for disambiguation.
                 container.children().each(function(index) {
-                    $(this).attr('title', suggestions[index].data.info);
+                    if (suggestions[index].data.info) {
+                        $(this).append('<div class="suggest-info"></div>')
+                            .find('.suggest-info').append(suggestions[index].data.info);
+                    }
                 });
             };
         }
